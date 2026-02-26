@@ -1,35 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react"
+import { Home, Clock, User, Settings } from "lucide-react"
+import { BottomTabs } from "./components/BottomTabs"
+import HomeScreen from "./components/HomeScreen"
+import ActivityScreen from "./components/ActivityScreen"
+import ProfileScreen from "./components/ProfileScreen"
+import SettingsScreen from "./components/SettingsScreen"
+import StartRunScreen from "./components/StartRunScreen"
+import RunDetailsScreen from "./components/RunDetailsScreen"
+import EditProfileScreen from "./components/EditProfileScreen"
+import GoalSettingsScreen from "./components/GoalSettingsScreen"
+import LoginScreen from "./components/LoginScreen"
+import SplashScreen from "./components/SplashScreen"
 
-function App() {
-  const [count, setCount] = useState(0)
+const tabs = [
+  { id: "homeScreen", label: "Home", icon: Home },
+  { id: "activityScreen", label: "Activity", icon: Clock },
+  { id: "profileScreen", label: "Profile", icon: User },
+  { id: "settingsScreen", label: "Settings", icon: Settings },
+]
+
+const tabScreenIds = ["homeScreen", "activityScreen", "profileScreen", "settingsScreen"]
+
+export default function App() {
+  const [activeScreen, setActiveScreen] = useState("homeScreen")
+  const [screenHistory, setScreenHistory] = useState<string[]>([])
+
+  // Navigate to a new screen (pushes to history)
+  const navigateTo = (screenId: string) => {
+    setScreenHistory(prev => [...prev, activeScreen])
+    setActiveScreen(screenId)
+  }
+
+  // Go back to previous screen
+  const goBack = () => {
+    if (screenHistory.length > 0) {
+      const newHistory = [...screenHistory]
+      const previousScreen = newHistory.pop()!
+      setScreenHistory(newHistory)
+      setActiveScreen(previousScreen)
+    }
+  }
+
+  // Handle tab changes (clears history since tabs are top-level)
+  const handleTabChange = (screenId: string) => {
+    setScreenHistory([])
+    setActiveScreen(screenId)
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="h-full flex flex-col bg-background overflow-hidden" style={{ maxHeight: '700px' }}>
+      {activeScreen === "homeScreen" && <HomeScreen />}
+      {activeScreen === "activityScreen" && <ActivityScreen />}
+      {activeScreen === "profileScreen" && <ProfileScreen />}
+      {activeScreen === "settingsScreen" && <SettingsScreen />}
+      {activeScreen === "startRunScreen" && <StartRunScreen onBack={goBack} />}
+      {activeScreen === "runDetailsScreen" && <RunDetailsScreen onBack={goBack} />}
+      {activeScreen === "editProfileScreen" && <EditProfileScreen onBack={goBack} />}
+      {activeScreen === "goalSettingsScreen" && <GoalSettingsScreen onBack={goBack} />}
+      {activeScreen === "loginScreen" && <LoginScreen />}
+      {activeScreen === "splashScreen" && <SplashScreen />}
+      {tabScreenIds.includes(activeScreen) && (
+        <BottomTabs tabs={tabs} activeTab={activeScreen} onTabChange={handleTabChange} />
+      )}
+    </div>
   )
 }
-
-export default App
